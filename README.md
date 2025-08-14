@@ -2,9 +2,13 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+- Specifically with : "npx create-react-app word-game-1"
+- Note the whole folder is created, so don't have to create a folder first, just run this above what would be the parent folder
+- Note in this case; I then replaced the contents of App.js with what I had already created which then runs LetterInput.js
+
 ## Available Scripts
 
-In the project directory, you can run:
+In the project directory (eg run "cd word-game-1"), you can run:
 
 ### `npm start`
 
