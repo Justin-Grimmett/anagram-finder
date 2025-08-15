@@ -23,7 +23,7 @@ export default function LetterInput() {
 	// Minimum required number of characters
 	const minLen = 4;
 	// Maximum allowed number of characters
-	const maxLength = 10;
+	const maxLength = 9;
 
 	// For the current selection of the text field
 	let input:any = null
