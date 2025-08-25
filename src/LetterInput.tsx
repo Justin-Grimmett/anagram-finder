@@ -1,6 +1,6 @@
 // https://www.perplexity.ai/search/create-a-react-front-end-web-f-9DDpRBmiSJqq.WxJeFhj2w#1
 
-import React, { useRef , useState } from "react";
+import React, { useRef , useState, useEffect } from "react";
 
 export default function LetterInput() {
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
@@ -29,6 +29,20 @@ export default function LetterInput() {
 	let inputFieldData : any = null
 	let startSelectionIdx : number = 0
 	let endSelectionIdx : number = 0
+
+	// Store the timestamp of when the page is first opened - to be used potentially for reference/comparison later on
+	const [pageRefreshTimeStamp, setPageRefreshTimeStamp] = useState<Date>(new Date());
+
+	// Functionality inside this will only be run once - eg on first load
+	useEffect(() => {
+		function testRunOnlyOnce () {
+			// Example function
+		}
+		
+		setPageRefreshTimeStamp(new Date());
+
+		testRunOnlyOnce();	// Run the above example function, which would only be run one time
+	}, []);
 
 	// When English letter buttons are clicked with mouse (or finger on touchscreen?)
 	const handleLetterClick = (letterClicked : string) => {
@@ -165,8 +179,12 @@ export default function LetterInput() {
 	const doSubmit = () => {
 		// Send "text" variable to the API to do backend work, and then return the output from that here
 
+		// Used for timestamp comparison
+		let submitTimeStamp : Date = new Date();
+		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
+
 		// The "state" auto function to set the value of submitLabelText variable
-		setSubmitLabelText(`"${lettersEntered}" will be sent to the API`);
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit`);
 	}
 
 	// The Front-End
@@ -259,8 +277,10 @@ export default function LetterInput() {
 			<div 
 				style={{marginTop: "20px"}}
 			>
-				{/* Label contents - set by the "State" declared at the top */}
-				{submitLabelText}
+				{/* Label contents - set by the "State" declared at the top - allow for multiple lines */}
+				{submitLabelText.split("\n").map((lineText,keyData) => {
+					return <div key={keyData}>{lineText}</div>;
+				})}
 			</div>
 		</div>
 	);
