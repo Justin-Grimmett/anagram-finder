@@ -215,11 +215,41 @@ export default function LetterInput() {
 
 		// Generate a UUID - just in case its required for data reference purposes
 		let uuid: string = crypto.randomUUID();
-		
+
 		// The "state" auto function to set the value of submitLabelText variable
 		// Currently for Testing only
 		// Eventually the full output from the API will be displayed here in some form
 		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${finalButtonArray} } \n User Agent : ${userAgent}`);
+		
+		// Use this JSON data to pass over to the API to be used in the backend
+		let apiJson : {} = {
+			"letters" : lettersEntered
+			, "user-agent" : userAgent
+			, "buttons-clicked" : finalButtonArray
+			, "uuid" : uuid
+			, "utc-timestamp-page-load" : formatTimeString(pageRefreshTimeStamp)
+			, "utc-timestamp-submit" : formatTimeString(submitTimeStamp)
+			, "tz-offset-page-load" : pageRefreshTimeStamp.getTimezoneOffset()
+			, "tz-offset-submit" : submitTimeStamp.getTimezoneOffset()
+		};
+
+		// Leave this here just for TESTING - especially if the Stringify version is what is required to be passed to the API
+		console.log(JSON.stringify(apiJson));
+	}
+
+	// Format a DateTime in the common string format
+	const formatTimeString = (date : Date) : string => {
+		return (`${padZeros(date.getUTCFullYear(),4)}-${padZeros(date.getUTCMonth()+1,2)}-${padZeros(date.getUTCDate(),2)} ${padZeros(date.getUTCHours(),2)}:`
+			+ `${padZeros(date.getUTCMinutes(),2)}:${padZeros(date.getUTCSeconds(),2)}.${padZeros(date.getUTCMilliseconds(),3)}`).trim();
+	}
+
+	// Pad a numeric string with a certain character up to a certain length - eg zeros at the start of a value for a time format
+	const padZeros = (val:number, len:number=2, char:string="0"):string => {
+		let str:string = val.toString().trim();
+		while(str.length < len) {
+			str = char + str;
+		}
+		return str.trim();
 	}
 
 	// The Front-End
