@@ -33,10 +33,17 @@ export default function LetterInput() {
 	// Store the timestamp of when the page is first opened - to be used potentially for reference/comparison later on
 	const [pageRefreshTimeStamp, setPageRefreshTimeStamp] = useState<Date>(new Date());
 
+	// Store the buttons pressed by the user - for backend reference
+	const [buttonsPressed, setButtonsPressed] = useState<string[]>([]);
+	// Append this array with the button pressed
+	const addButtonPressed = (button : string) => {
+		setButtonsPressed(buttonsPressed => [...buttonsPressed, button]);
+	};
+
 	// Functionality inside this will only be run once - eg on first load
 	useEffect(() => {
 		function testRunOnlyOnce () {
-			// Example function
+			// Example function contents
 		}
 		
 		setPageRefreshTimeStamp(new Date());
@@ -55,6 +62,7 @@ export default function LetterInput() {
 				const newTextValue = lettersEntered.slice(0, startSelectionIdx-isMultiSelect) + lettersEntered.slice(endSelectionIdx);
 				setLettersEntered(newTextValue);
 			}
+			logButtonPress("Backspace");
 		// Otherwise one of the A-Z letter buttons
 		} else {
 			// Existing text must be shorter than the maximum allowed length
@@ -62,6 +70,7 @@ export default function LetterInput() {
 				// Run the function to add the letter clicked
 				updateText(letterClicked, true);
 			}
+			logButtonPress(letterClicked);
 		}
 		handleMsg();
 	};
@@ -94,10 +103,18 @@ export default function LetterInput() {
 	const clearText = () => {
 		setLettersEntered("");		// Clear the text variable
 		setSubmitLabelText("");
+		logButtonPress("Clear");
+	}
+
+	// For the string formatting of the "buttons" pressed (eg as opposed to typing letters manually)
+	const logButtonPress = (buttonText : string) => {
+		addButtonPressed(`[ ${buttonText} ]`);
 	}
 
 	// Handler for manually typing text into the entry field
 	const handleKeyDown = (keyPressed : any) => {
+		addButtonPressed(keyPressed.key.toString());
+
 		// If maximum allowed letter is reached, do not continue
 		if (disableLettersIfMaxLen) return;
 
@@ -177,6 +194,8 @@ export default function LetterInput() {
 
 	// Submit button has been clicked
 	const doSubmit = () => {
+		logButtonPress("Submit");
+		
 		// Send "text" variable to the API to do backend work, and then return the output from that here
 
 		// Used for timestamp comparison
@@ -184,7 +203,7 @@ export default function LetterInput() {
 		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
 
 		// The "state" auto function to set the value of submitLabelText variable
-		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit`);
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${buttonsPressed} }`);
 	}
 
 	// The Front-End
