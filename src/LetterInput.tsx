@@ -3,121 +3,120 @@
 import React, { useRef , useState } from "react";
 
 export default function LetterInput() {
-	const [text, setText] = useState("");
-	const inputRef = useRef(null);
+	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
+	const inputRef = useRef(null);											// Used for functionality of the input text field
 
-	// An example of how React "States" work
-	const [submitLabelText, setSubmitLabelText] = useState("");
+	// An example of how React "States" work - "useState hook"
+	const [submitLabelText, setSubmitLabelText] = useState<string>("");
 	// submitLabelText 		= the variable - eg a string
 	// setSubmitLabelText 	= the automated function which populates the variable
 	// "" 					= the default value to be used
 
 	// "Icons" unicode characters
-	const backSpaceIcon = "⌫";
-	const clearIcon = "⮾";
+	const backSpaceIcon : string = "⌫";
+	const clearIcon : string = "⮾";
 
 	// All alphabet letters
-  	const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-	letters.push(backSpaceIcon);
+	const allowedLetters : string[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+	allowedLetters.push(backSpaceIcon);
 
 	// Minimum required number of characters
-	const minLen = 4;
+	const minRequiredLength : number = 4;
 	// Maximum allowed number of characters
-	const maxLength = 9;
+	const maxAllowedLength : number = 9;
 
 	// For the current selection of the text field
-	let input:any = null
-	let start = 0
-	let end = 0
+	let inputFieldData : any = null
+	let startSelectionIdx : number = 0
+	let endSelectionIdx : number = 0
 
-  	// When English letter buttons are clicked
-  	const handleLetterClick = (letter: string) => {
+	// When English letter buttons are clicked with mouse (or finger on touchscreen?)
+	const handleLetterClick = (letterClicked : string) => {
 		// Allow for backspace button to manually delete one character
-		if (letter === backSpaceIcon) {
-			if (text.length > 0) {
+		if (letterClicked === backSpaceIcon) {
+			if (lettersEntered.length > 0) {
 				setSelection();
 				// Delete the relevant single Letter where the cursor is (or at end by default)
-				const newValue = text.slice(0, start-1) + text.slice(end);
-				setText(newValue);
+				const newTextValue = lettersEntered.slice(0, startSelectionIdx-1) + lettersEntered.slice(endSelectionIdx);
+				setLettersEntered(newTextValue);
 			}
 		// Otherwise one of the A-Z letter buttons
 		} else {
 			// Existing text must be shorter than the maximum allowed length
-			if (text.length < maxLength) {
+			if (lettersEntered.length < maxAllowedLength) {
 				// Run the function to add the letter clicked
-				updateText(letter, true);
+				updateText(letterClicked, true);
 			}
 		}
 		handleMsg();
-  	};
+	};
 
 	// When text is typed manually into the text field directly
-	const handleChange = (e:any) => {
+	const handleChange = (textField : any) => {
 		// Existing text must be shorter than the maximum allowed length
-		if (e.target.value.length <= maxLength) {
+		if (textField.target.value.length <= maxAllowedLength) {
 			// Run the function to add the typed letter
-			setText(e.target.value);
+			setLettersEntered(textField.target.value);
 		}
 		handleMsg();
 	};
 
+	// Boolean: disable all letter buttons when max length reached
+	const disableLettersIfMaxLen = lettersEntered.length >= maxAllowedLength;
+
 	// When to disable the Letter buttons so they cannot be clicked anymore
-	const runDisableLetters = (letter:string) => {
+	const runDisableLetters = (letterClicked : string) => {
 		// Backspace button should always be active
-		if (letter === backSpaceIcon) {
+		if (letterClicked === backSpaceIcon) {
 			return !textExists();
 		} else {
 			// Return the controlling boolean
-			return disableLetters;
+			return disableLettersIfMaxLen;
 		}
 	};
 
-	// Boolean: disable all letter buttons when max length reached
-  	const disableLetters = text.length >= maxLength;
-
 	// Fully clear the text field contents
 	const clearText = () => {
-		setText("");
+		setLettersEntered("");		// Clear the text variable
 		setSubmitLabelText("");
 	}
 
 	// Handler for manually typing text into the entry field
-	const handleKeyDown = (e:any) => {
+	const handleKeyDown = (keyPressed : any) => {
 		// If maximum allowed letter is reached, do not continue
-		if (disableLetters) return;
+		if (disableLettersIfMaxLen) return;
 
 		// Get the pressed key
-		const key = e.key;
+		const keyName : string = keyPressed.key;
 
 		// Allow modifier keys and shortcuts like Ctrl+A, Cmd+C, etc.
 		// Also check for specific Keys
-		if (e.ctrlKey || e.metaKey || e.altKey || key === "ArrowLeft" || key === "ArrowRight" || key === "Home" || key === "End" || key === "Delete" || key === "Backspace") {
+		if (keyPressed.ctrlKey || keyPressed.metaKey || keyPressed.altKey || ["ArrowLeft" , "ArrowRight" , "Home" , "End" , "Delete" , "Backspace"].includes(keyName) ) {
 			// Allow default behavior for shortcuts
 			return;
 		}
 
-		
 		// Check if the key is a single English letter (case insensitive)
-		if (/^[a-zA-Z]$/.test(key)) {
+		if (/^[a-zA-Z]$/.test(keyName)) {
 			// Run function to update text based on the letter typed
-			updateText(key, false);
+			updateText(keyName, false);
 			
 			// Prevent default so the character does not get added by the browser as well
-			e.preventDefault();
+			keyPressed.preventDefault();
 		} else {
 			// For all other characters/keys do not do anything
-			e.preventDefault();
+			keyPressed.preventDefault();
 		}
 	};
 
 	// Functionality to actually update the text displayed in the entry field
-	const updateText = (letter:string, buttonPress:boolean) => {
+	const updateText = (letter : string, buttonPress : boolean) => {
 		// Get the selection range - relevant if the cursor is manually clicked into the field, not at the end
 		setSelection();
 
 		// Insert letter at cursor position
-		const newValue = text.slice(0, start) + String(letter).toUpperCase() + text.slice(end);
-		setText(newValue);
+		const newTextValue = lettersEntered.slice(0, startSelectionIdx) + String(letter).toUpperCase() + lettersEntered.slice(endSelectionIdx);
+		setLettersEntered(newTextValue);
 
 		// Set caret just after inserted char
 		requestAnimationFrame(() => {
@@ -125,40 +124,40 @@ export default function LetterInput() {
 				cursorAtEnd();
 			} else {
 				// Otherwise update the caret by one
-				input.selectionStart = input.selectionEnd = start + 1;
+				inputFieldData.selectionStart = inputFieldData.selectionEnd = startSelectionIdx + 1;
 			}
 		});
 	}
 
 	// Set the cursor selection of the text field
 	const setSelection = () => {
-		input = inputRef.current;
-		start = input.selectionStart;
-		end = input.selectionEnd;
+		inputFieldData = inputRef.current;
+		startSelectionIdx = inputFieldData.selectionStart;
+		endSelectionIdx = inputFieldData.selectionEnd;
 	}
 
 	// Set the cursor caret to be at the very end of the text field
 	const cursorAtEnd = () => {
 		// If the letter is added from one of the Buttons, move the cursor to the very end
-		input.selectionStart = text.length + 1;
-		input.selectionEnd = text.length + 1;
+		inputFieldData.selectionStart = lettersEntered.length + 1;
+		inputFieldData.selectionEnd = lettersEntered.length + 1;
 	}
 
 	// Does the text field contain any text?
 	const textExists = () => {
-		return text.length > 0;
+		return lettersEntered.length > 0;
 	}
 
 	// Handles the dyanmic label message
 	const handleMsg = () => {
-		let msg = '\u2800';	// Space-preserving invisible char
-		if (disableLetters) {
-			msg = `Maximum allowed length (${maxLength}) reached`
-		} else if (text.length > 0) {
-			msg = `[ ${text.length} ]`;
+		let labelMsg = '\u2800';	// Space-preserving invisible char
+		if (disableLettersIfMaxLen) {
+			labelMsg = `Maximum allowed length (${maxAllowedLength}) reached`
+		} else if (lettersEntered.length > 0) {
+			labelMsg = `[ ${lettersEntered.length} ]`;
 		}
 
-		return msg;
+		return labelMsg;
 	}
 
 	// Submit button has been clicked
@@ -166,14 +165,15 @@ export default function LetterInput() {
 		// Send "text" variable to the API to do backend work, and then return the output from that here
 
 		// The "state" auto function to set the value of submitLabelText variable
-		setSubmitLabelText(`"${text}" will be sent to the API`);
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API`);
 	}
-
+	
 	// The Front-End
+	// ************************************************************************************************************************
 	return (
 		<div style={{ fontFamily: "Arial", textAlign: "center", marginTop: "50px" }}>
 			<h2>Letter Input Game</h2>
-			<h4>{`Enter at least ${minLen} characters and press Submit`}</h4>
+			<h4>{`Enter at least ${minRequiredLength} characters and press Submit`}</h4>
 
 			{/* Top controls */}
 			<div style={{ display: "flex", alignItems: "center", marginBottom: "15px" , justifyContent: "center"}}>
@@ -181,8 +181,8 @@ export default function LetterInput() {
 				<input
 					ref={inputRef}
 					type="text"
-					value={text}
-					maxLength={maxLength}
+					value={lettersEntered}
+					maxLength={maxAllowedLength}
 					onChange={handleChange}
 					style={{
 						padding: "8px",
@@ -207,39 +207,39 @@ export default function LetterInput() {
 					{clearIcon}
 				</button>
 			</div>
-
+			
 			<div 
 				style={{marginBottom: "15px"}}
 			>
 				{/* The text contents of this label */}
 				{handleMsg()}
 			</div>
-
+			
 			{/* The letter buttons */}
 			<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: "400px", margin: "0 auto" }}>
-				{letters.map((letter) => (
+				{allowedLetters.map((eachLetter) => (
 					<button
-						key={letter}
-						title={letter===backSpaceIcon ? "Backspace" : ""}
-						onClick={() => handleLetterClick(letter)}
-						disabled={runDisableLetters(letter)} // disables all relevant Letter buttons when at max length
+						key={eachLetter}
+						title={eachLetter===backSpaceIcon ? "Backspace" : ""}
+						onClick={() => handleLetterClick(eachLetter)}
+						disabled={runDisableLetters(eachLetter)} // disables all relevant Letter buttons when at max length
 						style={{
 							margin: "3px",
 							padding: "10px 15px",
 							fontSize: "18px",
-							cursor: runDisableLetters(letter) ? "not-allowed" : "pointer",
-							opacity: runDisableLetters(letter) ? 0.5 : 1
+							cursor: runDisableLetters(eachLetter) ? "not-allowed" : "pointer",
+							opacity: runDisableLetters(eachLetter) ? 0.5 : 1
 						}}
 					>
 						{/* The dynamic Letter text displayed on the button */}
-						{letter}	
+						{eachLetter}	
 					</button>
 				))}
 			</div>
-
+			
 			<div style={{marginTop: "20px", display: "flex", justifyContent: "center"}}>
 				<button
-					disabled={text.length < minLen}
+					disabled={lettersEntered.length < minRequiredLength}
 					onClick={doSubmit}
 					style={{
 						marginTop: "20px",
@@ -253,7 +253,7 @@ export default function LetterInput() {
 					Submit
 				</button>
 			</div>
-
+			
 			{/* JUST FOR TESTING - Until the API exists etc*/}
 			<div 
 				style={{marginTop: "20px"}}
