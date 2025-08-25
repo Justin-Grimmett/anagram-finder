@@ -40,6 +40,9 @@ export default function LetterInput() {
 		setButtonsPressed(buttonsPressed => [...buttonsPressed, button]);
 	};
 
+	// For User Agent data - eg browser version and OS - note will Not work in Mobile Native Apps (maybe use something like react-native-device-info for that specifically)
+	const [userAgent, setUserAgent] = useState("");
+
 	// Functionality inside this will only be run once - eg on first load
 	useEffect(() => {
 		function testRunOnlyOnce () {
@@ -49,6 +52,8 @@ export default function LetterInput() {
 		setPageRefreshTimeStamp(new Date());
 
 		testRunOnlyOnce();	// Run the above example function, which would only be run one time
+
+		setUserAgent(window.navigator.userAgent);
 	}, []);
 
 	// When English letter buttons are clicked with mouse (or finger on touchscreen?)
@@ -203,7 +208,7 @@ export default function LetterInput() {
 		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
 
 		// The "state" auto function to set the value of submitLabelText variable
-		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${buttonsPressed} }`);
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${buttonsPressed} } \n User Agent : ${userAgent}`);
 	}
 
 	// The Front-End
