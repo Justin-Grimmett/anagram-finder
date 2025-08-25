@@ -213,6 +213,9 @@ export default function LetterInput() {
 		let submitTimeStamp : Date = new Date();
 		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
 
+		// Generate a UUID - just in case its required for data reference purposes
+		let uuid: string = crypto.randomUUID();
+		
 		// The "state" auto function to set the value of submitLabelText variable
 		// Currently for Testing only
 		// Eventually the full output from the API will be displayed here in some form
