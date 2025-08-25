@@ -113,7 +113,10 @@ export default function LetterInput() {
 
 	// For the string formatting of the "buttons" pressed (eg as opposed to typing letters manually)
 	const logButtonPress = (buttonText : string) => {
-		addButtonPressed(`[ ${buttonText} ]`);
+		addButtonPressed(formatButtonPress(buttonText));
+	}
+	const formatButtonPress = (buttonText : string):string => {
+		return `[ ${buttonText} ]`;
 	}
 
 	// Handler for manually typing text into the entry field
@@ -199,16 +202,21 @@ export default function LetterInput() {
 
 	// Submit button has been clicked
 	const doSubmit = () => {
-		logButtonPress("Submit");
+		// Manually add to the log of buttons pressed - due to state updates being asynchronous and batched this was not being included
+		let finalButtonArray : string[] = [...buttonsPressed , formatButtonPress("Submit")];
+		setButtonsPressed(finalButtonArray);
 		
 		// Send "text" variable to the API to do backend work, and then return the output from that here
+		// ...
 
 		// Used for timestamp comparison
 		let submitTimeStamp : Date = new Date();
 		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
 
 		// The "state" auto function to set the value of submitLabelText variable
-		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${buttonsPressed} } \n User Agent : ${userAgent}`);
+		// Currently for Testing only
+		// Eventually the full output from the API will be displayed here in some form
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${finalButtonArray} } \n User Agent : ${userAgent}`);
 	}
 
 	// The Front-End
