@@ -37,7 +37,8 @@ export default function LetterInput() {
 			if (lettersEntered.length > 0) {
 				setSelection();
 				// Delete the relevant single Letter where the cursor is (or at end by default)
-				const newTextValue = lettersEntered.slice(0, startSelectionIdx-1) + lettersEntered.slice(endSelectionIdx);
+				let isMultiSelect : number = endSelectionIdx > startSelectionIdx ? 0 : 1;
+				const newTextValue = lettersEntered.slice(0, startSelectionIdx-isMultiSelect) + lettersEntered.slice(endSelectionIdx);
 				setLettersEntered(newTextValue);
 			}
 		// Otherwise one of the A-Z letter buttons
@@ -167,7 +168,7 @@ export default function LetterInput() {
 		// The "state" auto function to set the value of submitLabelText variable
 		setSubmitLabelText(`"${lettersEntered}" will be sent to the API`);
 	}
-	
+
 	// The Front-End
 	// ************************************************************************************************************************
 	return (
