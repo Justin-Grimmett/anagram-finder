@@ -1,3 +1,9 @@
+// ... TODO
+// 1. Add the floating manual Refresh button
+// 2. Create a common Modal - to be used for popup display - eg including the output
+// 3. Add the "copyright" for the Word data
+// 4. Add details of the tech stack that runs the site - because the point of this is just to be a demo on Git etc
+
 // https://www.perplexity.ai/search/create-a-react-front-end-web-f-9DDpRBmiSJqq.WxJeFhj2w#1
 
 import React, { useRef , useState, useEffect } from "react";
@@ -256,7 +262,8 @@ export default function LetterInput() {
 	// ************************************************************************************************************************
 	return (
 		<div style={{ fontFamily: "Arial", textAlign: "center", marginTop: "50px" }}>
-			<h2>Letter Input Game</h2>
+			<h2>Anagram Finder</h2>
+			<h3>(and possible future word game)</h3>
 			<h4>{`Enter at least ${minRequiredLength} characters and press Submit`}</h4>
 
 			{/* Top controls */}
