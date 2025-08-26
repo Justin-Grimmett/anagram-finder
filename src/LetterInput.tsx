@@ -18,6 +18,9 @@ export default function LetterInput() {
 	// setSubmitLabelText 	= the automated function which populates the variable
 	// "" 					= the default value to be used
 
+	// Used to send data to the API for backend processing
+	const [outputJson , setOutputJson] = useState<{}>({});
+
 	// "Icons" unicode characters
 	const backSpaceIcon : string = "⌫";
 	const clearIcon : string = "⮾";
@@ -228,20 +231,43 @@ export default function LetterInput() {
 		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${finalButtonArray} } \n User Agent : ${userAgent}`);
 		
 		// Use this JSON data to pass over to the API to be used in the backend
-		let apiJson : {} = {
+		setOutputJson( {
 			"letters" : lettersEntered
 			, "user-agent" : userAgent
 			, "buttons-clicked" : finalButtonArray
 			, "uuid" : uuid
 			, "utc-timestamp-page-load" : formatTimeString(pageRefreshTimeStamp)
 			, "utc-timestamp-submit" : formatTimeString(submitTimeStamp)
-			, "tz-offset-page-load" : pageRefreshTimeStamp.getTimezoneOffset()
 			, "tz-offset-submit" : submitTimeStamp.getTimezoneOffset()
-		};
+		});
 
 		// Leave this here just for TESTING - especially if the Stringify version is what is required to be passed to the API
-		console.log(JSON.stringify(apiJson));
+		console.log(JSON.stringify(outputJson));
 	}
+
+	// Submitting the data to the backend API asynchronously
+	useEffect(() => {
+		// PUT request using fetch with async/await
+		async function runApiPost () {
+			const requestOptions : RequestInit = {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(outputJson), 
+				mode: 'cors'
+			};
+			
+			// While doing AWS Testing this will need to be dynamically updated everytime Terraform etc is run
+			let uniqueAwsApiId : string = "hjtgcgbvjc";
+
+			const response = await fetch(`https://${uniqueAwsApiId}.execute-api.ap-southeast-2.amazonaws.com/anagram`, requestOptions);
+			const data = await response.json();
+			
+			// Just used for Testing
+			console.log(data);
+		}
+
+		runApiPost();
+	}, [outputJson]);
 
 	// Format a DateTime in the common string format
 	const formatTimeString = (date : Date) : string => {
