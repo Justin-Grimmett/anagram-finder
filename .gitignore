@@ -21,3 +21,13 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# For Terraform
+/terraform/.terraform/*
+/terraform/.terraform.lock.hcl
+/terraform/.terraform.tfstate.lock.info
+/terraform/terraform.tfstate.backup
+/terraform/terraform.tfstate
+
+# For dynamic data within the Web Page - note currently not in use
+/files/web-page/api-config.js
