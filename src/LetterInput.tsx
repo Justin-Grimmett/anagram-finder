@@ -1,5 +1,5 @@
 // ... TODO
-// 1. Add the floating manual Refresh button
+// 1. Fix button positions - eg floating Refresh
 // 2. Create a common Modal - to be used for popup display - eg including the output
 // 3. Add the "copyright" for the Word data
 // 4. Add details of the tech stack that runs the site - because the point of this is just to be a demo on Git etc
@@ -258,6 +258,11 @@ export default function LetterInput() {
 		return str.trim();
 	}
 
+	// Refresh the page
+	const doRefresh = () => {
+		window.location.reload();
+	}
+
 	// The Front-End
 	// ************************************************************************************************************************
 	return (
@@ -288,7 +293,9 @@ export default function LetterInput() {
 					style={{
 						fontSize: "20px",
 						textAlign: "center",
-						marginLeft: "5px"
+						marginLeft: "5px",
+						cursor : textExists() ? "pointer" : "not-allowed"
+						
 					}} 
 					onClick={clearText}
 					disabled = {!textExists()}
@@ -338,6 +345,7 @@ export default function LetterInput() {
 						padding: "10px 15px",
 						fontSize: "18px",
 						width: "200px"			// Half of the above hardcoded max-width
+						, cursor : lettersEntered.length < minRequiredLength ? "not-allowed" : "pointer"
 					}}
 					title={"Submit"}
 				>
@@ -353,6 +361,23 @@ export default function LetterInput() {
 				{submitLabelText.split("\n").map((lineText,keyData) => {
 					return <div key={keyData}>{lineText}</div>;
 				})}
+			</div>
+
+			{/* Button to manually refresh the page */}
+			<div style={{marginTop: "20px", display: "flex", justifyContent: "center"}}>
+				<button
+					style={{
+						marginTop: "20px",
+						margin: "3px",
+						padding: "10px 15px",
+						fontSize: "18px",
+						cursor : "pointer"
+					}}
+					onClick={doRefresh}
+					title={"Refresh"}
+				>
+					⟲
+				</button>
 			</div>
 		</div>
 	);
