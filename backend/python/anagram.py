@@ -28,9 +28,6 @@ def main(inputWord, includeSourceWord):
 	returnData = {"success" : False}
 
 	try:
-		# If True, force the inputWord to be manually typed, even if the variable below has a valid word
-		useInput = False
-
 		# Make sure the parameter passed in is a String
 		inputWord = str(inputWord)
 
@@ -43,20 +40,15 @@ def main(inputWord, includeSourceWord):
 		# Hardcoded maximum allowed word length - just to force an exception, so the below functionality will work as intended
 		maxAllowedMax = 9
 
-		# Allow the word to be typed here manually
+		# Validate word
 		pattern = r"^[A-Za-z]{{{},{}}}$".format(shortestWordLen, maxAllowedMax)	# Only allow English characters between the allowed word length range
-		# Force the manual input
-		if useInput:
-			inputWord = ""
-		# Use Regex to only allow English letters, and then keep looping until this is valid
-		# Note if the input word is already valid (and useInput is False) then this would be skipped
+		# Use Regex to only allow English letters
 		while re.search(pattern, inputWord) == None:
 			# If the length is correct, display an error regarding invalid characters
 			if len(inputWord) >= shortestWordLen and len(inputWord) <= maxAllowedMax:
-				print("Invalid characters entered, please try again. Only allowed to be English letters (Eg A-Z)")
-			# Manual input in the CLI for the input word
-			inputWord = input("Please Type some letters (between {} and {} characters): ".format(shortestWordLen,maxAllowedMax))
-			
+				s = "ERRROR : Invalid characters entered, please try again. Only allowed to be English letters (Eg A-Z). Characters entered : [ {} ]".format(inputWord)
+				raise Exception(s)
+		
 		startTime = time.time()			# Used for printline testing
 
 		# Just for testing
