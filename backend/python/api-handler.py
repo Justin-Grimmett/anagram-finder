@@ -6,7 +6,7 @@ import boto3
 import anagram
 
 #set env variables
-# QUEUE_URL = os.environ['QUEUE_URL']
+ANAGRAM_URL_ROUTE = os.environ['ANAGRAM_URL_ROUTE']
 
 def lambda_handler(event, context):  
     wordData = {"success" : False}
@@ -17,7 +17,7 @@ def lambda_handler(event, context):
 
         body = {}
         successful = False
-        if apiEvent == "/anagram":          ### use an Environment Variable
+        if apiEvent == ANAGRAM_URL_ROUTE:       # API Route
             if event['body'] != None:
                 body = json.loads(event['body'])
                 if body != {}:

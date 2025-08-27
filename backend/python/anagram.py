@@ -24,6 +24,9 @@ import os
 import re
 import boto3
 
+#set env variables
+S3_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+
 def main(inputWord, includeSourceWord):
 	returnData = {"success" : False}
 
@@ -153,7 +156,7 @@ def main(inputWord, includeSourceWord):
 		# Compare against a static list of real existent words stored in an S3 currently - to return actual read words only
 		if len(newWords) > 0:
 			s3 = boto3.client("s3")
-			bucket_name = "words-txt-test"		# Hardcoded bucket name ### use an Environment Variable
+			bucket_name = S3_BUCKET_NAME
 			objects_list = s3.list_objects_v2(Bucket=bucket_name).get("Contents")	# the objects stored in the S3 Bucket - eg the files
 			# loop through the files
 			for obj in objects_list:
