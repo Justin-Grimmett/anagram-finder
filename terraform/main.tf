@@ -24,6 +24,8 @@ locals {
     lambda-1-title          = "xxx-word-game-lambda-1"
     # lambda-2-title          = "bb-lambda-2-from-modular-terraform-send-data"
 
+    api-url-routes          = "/anagram"
+
     // SNS title
     # sns-name                = "datetime-uuid-topic-from-modular-terraform"
 
@@ -63,13 +65,12 @@ module "api" {
     name            = "xxx-lambda-api-trigger-from-modular-terraform"       // Lambda title where the API points to for functionality
 
     // Routes available within the API endpoint
-    routes          = [  
-                            "PUT /anagram"
-                        # ,   "ANY /random-uuid"
-                    ]
+    routes          = [ "PUT ${local.api-url-routes}" ]
 }
 
-// 3. Lambda 1 : API into SQS queue
+// ... S3 for files to be access by the Lambda
+
+// 3. Lambda 1 : API into Anagram controller to be returned - and eventually add data into an SQS queue
 module "lambda-1" {
     source                  = "./modules/lambda"
 
@@ -80,12 +81,14 @@ module "lambda-1" {
     sub-folder-location     = "/lambda-1/"                                                                          // local sub-folder where the lambda function code files are located
     file-name               = "lambda_function.zip"                                                                 // zipped code files
     runtime-language        = "python3.13"                                                                          // coding language and version
-    handler-file-method     = "lambda_function.lambda_handler"                                                      // file dot function name
+    handler-file-method     = "api-handler.lambda_handler"                                                          // file dot function name
 
     // Environment Variables used by the function
-    # environment-variables   = {
-            # QUEUE_URL       = "https://sqs.${var.aws-primary-region}.amazonaws.com/${var.my-aws-user-id}/${module.sqs.name}"
-        # }
+    environment-variables   = {
+            # QUEUE_URL             = "https://sqs.${var.aws-primary-region}.amazonaws.com/${var.my-aws-user-id}/${module.sqs.name}"
+            S3_BUCKET_NAME          = "words-txt-test"      # Make this dynamically eventually - eg with an S3 bucket created from within Terraform here
+            ANAGRAM_URL_ROUTE       = local.api-url-routes
+    }
     
     // For Role Permissions
     policy-data-statements  = [
@@ -100,6 +103,14 @@ module "lambda-1" {
         {
             actions     = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
             resources   = ["arn:aws:logs:${var.aws-primary-region}:${var.my-aws-user-id}:log-group:/aws/lambda/${local.lambda-1-title}:*"]
+        }
+        , {
+            actions     = ["s3:ListBucket"]
+            resources   = ["arn:aws:s3:::words-txt-test"]   # S3 Bucket name
+        }
+        , {
+            actions     = ["s3:GetObject"]
+            resources   = ["arn:aws:s3:::words-txt-test/*"]   # S3 Bucket contents
         }
     ]
 }

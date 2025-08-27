@@ -13,7 +13,7 @@ variable "description" {
 variable "parent-folder-location" {
     type                = string
     description         = "The Parent folder path location locally here of where the sub-folders for where the Lambda function files are located"
-    default             = "./modules/lambda/files/"  // Eg if from master parent Main.TF
+    default             = "./files/lambda/"  // Eg if from master parent Main.TF
 }
 
 variable "sub-folder-location" {
