@@ -7,11 +7,9 @@
 // https://www.perplexity.ai/search/create-a-react-front-end-web-f-9DDpRBmiSJqq.WxJeFhj2w#1
 
 import React, { useRef , useState, useEffect } from "react";
+import { API_ENDPOINT } from "./dynamic/api-config";
 
 export default function LetterInput() {
-	// While doing AWS Testing this will need to be dynamically updated everytime Terraform etc is run
-	const uniqueAwsApiId : string = "d9qj1omoh7";
-
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
 	const inputRef = useRef(null);											// Used for functionality of the input text field
 
@@ -266,7 +264,7 @@ export default function LetterInput() {
 				mode: 'cors'
 			};
 
-			const response = await fetch(`https://${uniqueAwsApiId}.execute-api.ap-southeast-2.amazonaws.com/anagram`, requestOptions);
+			const response = await fetch(`${API_ENDPOINT}/anagram`, requestOptions);
 			const data = await response.json();
 			
 			// Just used for Testing - Remove this once all the necessary data is used as needed

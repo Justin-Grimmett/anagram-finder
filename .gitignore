@@ -29,5 +29,5 @@ yarn-error.log*
 /terraform/terraform.tfstate.backup
 /terraform/terraform.tfstate
 
-# For dynamic data within the Web Page - note currently not in use
-/files/web-page/api-config.js
+# For dynamic data within the Web Page - Eg the non-customised AWS general API endpoint
+/src/dynamic/api-config.tsx

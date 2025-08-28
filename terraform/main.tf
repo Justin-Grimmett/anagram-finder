@@ -81,6 +81,15 @@ module "api" {
     routes          = [ "PUT ${local.api-url-routes}" ]
 }
 
+module "update-js" {
+    source                      = "./modules/web-page"
+
+    api-endpoint                = module.api.api-endpoint
+    js-file-path                = "./../src/dynamic/api-config.tsx"
+
+    template-file-path          = "./../src/dynamic/template.tsx.tpl"      // Template file which is used to populate the contents of the JS file
+}
+
 // S3 Bucket for files to be access by the Lambda
 module "s3" {
     source                      = "./modules/s3-bucket"
