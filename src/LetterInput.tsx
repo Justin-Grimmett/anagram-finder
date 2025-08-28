@@ -9,6 +9,9 @@
 import React, { useRef , useState, useEffect } from "react";
 
 export default function LetterInput() {
+	// While doing AWS Testing this will need to be dynamically updated everytime Terraform etc is run
+	const uniqueAwsApiId : string = "d9qj1omoh7";
+
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
 	const inputRef = useRef(null);											// Used for functionality of the input text field
 
@@ -262,9 +265,6 @@ export default function LetterInput() {
 				body: JSON.stringify(outputJson), 
 				mode: 'cors'
 			};
-			
-			// While doing AWS Testing this will need to be dynamically updated everytime Terraform etc is run
-			let uniqueAwsApiId : string = "2xrs7l44rf";
 
 			const response = await fetch(`https://${uniqueAwsApiId}.execute-api.ap-southeast-2.amazonaws.com/anagram`, requestOptions);
 			const data = await response.json();
