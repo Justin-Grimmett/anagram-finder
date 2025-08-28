@@ -82,7 +82,7 @@ module "api" {
 }
 
 module "update-js" {
-    source                      = "./modules/web-page"
+    source                      = "./modules/web-page-update-endpoint"
 
     api-endpoint                = module.api.api-endpoint
     js-file-path                = "./../src/dynamic/api-config.tsx"
