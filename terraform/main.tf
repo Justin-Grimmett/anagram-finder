@@ -145,3 +145,10 @@ module "lambda-1" {
         }
     ]
 }
+
+// Build the React production files - to be deployed to an S3 Bucket
+module "build-react" {
+    source              = "./modules/web-page-build-react"
+
+    react-path          = "./../src"     // Note this is the path relative from the current path where this Main TF file is located
+}
