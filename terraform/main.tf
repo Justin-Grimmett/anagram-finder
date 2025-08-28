@@ -26,6 +26,8 @@ locals {
 
     api-url-routes          = "/anagram"
 
+    s3-bucket-name          = "words-txt-test"
+
     // SNS title
     # sns-name                = "datetime-uuid-topic-from-modular-terraform"
 
@@ -86,7 +88,7 @@ module "lambda-1" {
     // Environment Variables used by the function
     environment-variables   = {
             # QUEUE_URL             = "https://sqs.${var.aws-primary-region}.amazonaws.com/${var.my-aws-user-id}/${module.sqs.name}"
-            S3_BUCKET_NAME          = "words-txt-test"      # Make this dynamically eventually - eg with an S3 bucket created from within Terraform here
+            S3_BUCKET_NAME          = local.s3-bucket-name
             ANAGRAM_URL_ROUTE       = local.api-url-routes
     }
     
@@ -106,11 +108,11 @@ module "lambda-1" {
         }
         , {
             actions     = ["s3:ListBucket"]
-            resources   = ["arn:aws:s3:::words-txt-test"]   # S3 Bucket name
+            resources   = ["arn:aws:s3:::${local.s3-bucket-name}"]   # S3 Bucket name
         }
         , {
             actions     = ["s3:GetObject"]
-            resources   = ["arn:aws:s3:::words-txt-test/*"]   # S3 Bucket contents
+            resources   = ["arn:aws:s3:::${local.s3-bucket-name}/*"]   # S3 Bucket contents
         }
     ]
 }
