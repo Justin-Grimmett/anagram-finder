@@ -20,13 +20,16 @@ provider "aws" {
 
 // To prevent duplicate hardcoding of this data when it is to be used in multiple places
 locals {
+    // A randomised string
+    random                  = module.random.random-string
+    
     // Lambda function names
-    lambda-1-title          = "xxx-word-game-lambda-1"
+    lambda-1-title          = "${local.random}-word-game-lambda-1"
     # lambda-2-title          = "bb-lambda-2-from-modular-terraform-send-data"
 
     api-url-routes          = "/anagram"
 
-    s3-bucket-name          = "words-txt-test"
+    s3-bucket-name          = "${local.random}-words-txt-test"
 
     // SNS title
     # sns-name                = "datetime-uuid-topic-from-modular-terraform"
@@ -38,6 +41,14 @@ locals {
     // HTML web page files/folders
     # web-page-folder-path    = "./files/web-page"
     # js-file                 = "${local.web-page-folder-path}/api-config.js"
+}
+
+// For a random string
+module "random" {
+    source                  = "./modules/random"
+    
+    include-upper           = false
+    length                  = 10
 }
 
 // Main global execute Lambda policy - to be used by all lambda functions
@@ -64,13 +75,21 @@ module "api" {
     function-name   = module.lambda-1.function-name
     invoke-arn      = module.lambda-1.invoke-arn
 
-    name            = "xxx-lambda-api-trigger-from-modular-terraform"       // Lambda title where the API points to for functionality
+    name            = "${local.random}-lambda-api-trigger-from-modular-tf"       // Lambda title where the API points to for functionality
 
     // Routes available within the API endpoint
     routes          = [ "PUT ${local.api-url-routes}" ]
 }
 
-// ... S3 for files to be access by the Lambda
+// S3 Bucket for files to be access by the Lambda
+module "s3" {
+    source                      = "./modules/s3-bucket"
+
+    source-files-folder-path    = "./files/s3"
+    file-types                  = var.file-types
+    
+    title                       = local.s3-bucket-name    
+}
 
 // 3. Lambda 1 : API into Anagram controller to be returned - and eventually add data into an SQS queue
 module "lambda-1" {
@@ -79,7 +98,7 @@ module "lambda-1" {
     lambda-exec-role        = module.main-policy.policy-document-json
     title                   = local.lambda-1-title                                                                  // Name of the lambda function
 
-    description             = "xxx Retrieve data from an API and send it to an SQS : Created from modular Terraform"    // text description
+    description             = "${local.random} Retrieve data from an API and send it to an SQS : Created from modular Terraform"    // text description
     sub-folder-location     = "/lambda-1/"                                                                          // local sub-folder where the lambda function code files are located
     file-name               = "lambda_function.zip"                                                                 // zipped code files
     runtime-language        = "python3.13"                                                                          // coding language and version
