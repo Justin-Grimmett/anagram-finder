@@ -21,6 +21,11 @@ export default function LetterInput() {
 	// Used to send data to the API for backend processing
 	const [outputJson , setOutputJson] = useState<{}>({});
 
+	// The backend processed data returned from the API
+	const [returnedJsonWordData , setReturnedJsonWordData] = useState<{}>({});
+	// Has the Submit button been clicked by the user?
+	const [submitIsClicked, setSubmitIsClicked] = useState<boolean>(false);
+
 	// "Icons" unicode characters
 	const backSpaceIcon : string = "⌫";
 	const clearIcon : string = "⮾";
@@ -41,6 +46,8 @@ export default function LetterInput() {
 
 	// Store the timestamp of when the page is first opened - to be used potentially for reference/comparison later on
 	const [pageRefreshTimeStamp, setPageRefreshTimeStamp] = useState<Date>(new Date());
+	const [submitTimeStamp, setSubmitTimeStamp] = useState<Date>(new Date());	// Note this data should be empty at this point, so the default is irrelevant
+	const [returnTimeStamp, setReturnTimeStamp] = useState<Date>(new Date());	// Note this data should be empty at this point, so the default is irrelevant
 
 	// Store the buttons pressed by the user - for backend reference
 	const [buttonsPressed, setButtonsPressed] = useState<string[]>([]);
@@ -219,8 +226,9 @@ export default function LetterInput() {
 		// ...
 
 		// Used for timestamp comparison
-		let submitTimeStamp : Date = new Date();
-		let timeDiffInSecs :number = (submitTimeStamp.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
+		let submitTime : Date = new Date();
+		setSubmitTimeStamp(submitTime);
+		let timeDiffInSecs : number = (submitTime.getTime() - pageRefreshTimeStamp.getTime()) / 1000;
 
 		// Generate a UUID - just in case its required for data reference purposes
 		let uuid: string = crypto.randomUUID();
@@ -241,8 +249,7 @@ export default function LetterInput() {
 			, "tz-offset-submit" : submitTimeStamp.getTimezoneOffset()
 		});
 
-		// Leave this here just for TESTING - especially if the Stringify version is what is required to be passed to the API
-		console.log(JSON.stringify(outputJson));
+		setSubmitIsClicked(true);
 	}
 
 	// Submitting the data to the backend API asynchronously
@@ -257,17 +264,39 @@ export default function LetterInput() {
 			};
 			
 			// While doing AWS Testing this will need to be dynamically updated everytime Terraform etc is run
-			let uniqueAwsApiId : string = "hjtgcgbvjc";
+			let uniqueAwsApiId : string = "2xrs7l44rf";
 
 			const response = await fetch(`https://${uniqueAwsApiId}.execute-api.ap-southeast-2.amazonaws.com/anagram`, requestOptions);
 			const data = await response.json();
 			
-			// Just used for Testing
+			// Just used for Testing - Remove this once all the necessary data is used as needed
 			console.log(data);
+
+			setReturnedJsonWordData(data);		
+
+			setSubmitIsClicked(false);
+
+			setReturnTimeStamp(new Date());
 		}
 
-		runApiPost();
-	}, [outputJson]);
+		if (submitIsClicked) {
+			runApiPost();
+		}
+	}, [outputJson, returnedJsonWordData, submitIsClicked, submitLabelText]);
+
+	// What this "useEffect" means is this will run when the variable "returnedJsonWordData" changes (and others in the same place) - and this would only occur on the Async API call
+	// This is just used to display the Returned data in the frontend - remove once this is display correctly - eg in a modal
+	useEffect(() => {
+		if (returnedJsonWordData) {
+			if (Object.keys(returnedJsonWordData).length > 0) {
+				if ("wordData" in returnedJsonWordData) {
+					// "prev" is what it already includes
+					let timeDiffInSecs : number = (returnTimeStamp.getTime() - submitTimeStamp.getTime()) / 1000;
+					setSubmitLabelText(prev => prev + "\n Returned data : \n" + JSON.stringify(returnedJsonWordData["wordData"]).replaceAll('","','" , "') + `\nData returned in ${timeDiffInSecs} seconds`);
+				}
+			}
+		}
+	}, [returnedJsonWordData, returnTimeStamp, submitTimeStamp]);
 
 	// Format a DateTime in the common string format
 	const formatTimeString = (date : Date) : string => {
@@ -379,16 +408,6 @@ export default function LetterInput() {
 				</button>
 			</div>
 			
-			{/* JUST FOR TESTING - Until the API exists etc*/}
-			<div 
-				style={{marginTop: "20px"}}
-			>
-				{/* Label contents - set by the "State" declared at the top - allow for multiple lines */}
-				{submitLabelText.split("\n").map((lineText,keyData) => {
-					return <div key={keyData}>{lineText}</div>;
-				})}
-			</div>
-
 			{/* Button to manually refresh the page */}
 			<div style={{marginTop: "20px", display: "flex", justifyContent: "center"}}>
 				<button
@@ -404,6 +423,16 @@ export default function LetterInput() {
 				>
 					⟲
 				</button>
+			</div>
+
+			{/* JUST FOR TESTING - Until the API exists and the output is fully implemented etc*/}
+			<div 
+				style={{marginTop: "20px"}}
+			>
+				{/* Label contents - set by the "State" declared at the top - allow for multiple lines */}
+				{submitLabelText.split("\n").map((lineText,keyData) => {
+					return <div key={keyData}>{lineText}</div>;
+				})}
 			</div>
 		</div>
 	);
