@@ -91,3 +91,9 @@ variable "log-location" {
     type            = string
     default         = "/aws/lambda/"
 }
+
+variable "memory-size" {
+    description     = "The MB used for the maximum mrmory size of the Lambda"
+    type            = number
+    default         = 128
+}

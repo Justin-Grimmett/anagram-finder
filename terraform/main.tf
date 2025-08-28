@@ -84,6 +84,7 @@ module "lambda-1" {
     file-name               = "lambda_function.zip"                                                                 // zipped code files
     runtime-language        = "python3.13"                                                                          // coding language and version
     handler-file-method     = "api-handler.lambda_handler"                                                          // file dot function name
+    memory-size             = 512                                                                                   // memory size in MB - I was running out at the default 128
 
     // Environment Variables used by the function
     environment-variables   = {

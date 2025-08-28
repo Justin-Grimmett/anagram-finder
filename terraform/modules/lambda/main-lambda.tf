@@ -32,7 +32,7 @@ resource "aws_lambda_function" "lambda" {
     depends_on = [ module.lambda-policy-doc ]
 
     // hardcoded for now *********************
-    memory_size      = 128
+    memory_size      = var.memory-size
     timeout          = 600
     architectures    = ["x86_64"]
     ephemeral_storage {
