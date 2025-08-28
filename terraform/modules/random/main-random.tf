@@ -2,17 +2,17 @@
 
 // For a randomised string - just for testing currently
 resource "random_string" "random-string" {
-    length              = 16
+    length              = var.length
 
     // Include the below types - note these will still be used even if the below is set to zero
-    upper               = true
+    upper               = var.include-upper
     lower               = true
     numeric             = true
     special             = false     // Eg : !@#$%&*()-_=+[]{}<>:?
     // Minimum number of these character types - note this overrides the above and will turn them to True if above zero
-    min_upper           = 5
-    min_lower           = 5
-    min_numeric         = 5
+    min_upper           = var.include-upper == false ? 0 : 5 > (var.length / 3) ? 0 : 5
+    min_lower           = 5 > (var.length / 3) ? 0 : 5
+    min_numeric         = 5 > (var.length / 3) ? 0 : 5
     min_special         = 0
 
     // Be default a Random will never change once created, however if the below resource changes then it will trigger a change to this random string
