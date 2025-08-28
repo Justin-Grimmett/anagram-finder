@@ -80,6 +80,8 @@ module "policy-statement" {
 
 // Attach the policy statement to the policy
 resource "aws_s3_bucket_policy" "policy" {
+    count                       = var.make-public-boolean ? 1 : 0       // This will only be ran if this boolean variable is set to True
+
     bucket                      = aws_s3_bucket.s3.id
     policy                      = module.policy-statement.policy-document-json
 
