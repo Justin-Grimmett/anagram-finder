@@ -5,6 +5,8 @@ resource "aws_s3_bucket" "s3" {
 }
 
 // Static multiple Files to be uploaded to S3 Bucket
+// *** NOTE fileset() function reads files at Plan stage only, so this would not include other files dynamically created or changed during Apply
+// *** Eg I tried running the React npm run build during Terraform Apply, but causes issues
 resource "aws_s3_object" "multiple-files" {
     // Loop through the relevant files in the folder set above
     for_each            = fileset(var.source-files-folder-path, "**")
@@ -16,11 +18,11 @@ resource "aws_s3_object" "multiple-files" {
 
         // Extract file extension and look up content type, default to "application/octet-stream" if not found
         // - This is required because the HTML file was being downloaded when accessed as a URL and not opened in the browser directly
-        content_type    = lookup(
-                            var.file-types,
-                            lower(trimspace(split(".", each.value)[length(split(".", each.value)) - 1])),
-                            "application/octet-stream"
-                        )
+        content_type    = strcontains(each.value, ".") ? lookup(
+                                var.file-types,
+                                lower(trimspace(split(".", lower(each.value))[length(split(".", lower(each.value))) - 1])),
+                                "application/octet-stream"
+                            ) : "application/octet-stream"
 }
 
 // Policy for Public Access - A

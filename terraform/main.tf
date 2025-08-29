@@ -29,7 +29,7 @@ locals {
 
     api-url-routes          = "/anagram"
 
-    s3-bucket-name          = "${local.random}-words-txt-test"
+    s3-lambda-1-bucket-name          = "${local.random}-words-txt-test"
 
     // SNS title
     # sns-name                = "datetime-uuid-topic-from-modular-terraform"
@@ -81,7 +81,7 @@ module "api" {
     routes          = [ "PUT ${local.api-url-routes}" ]
 }
 
-module "update-js" {
+module "update-web-endpoint" {
     source                      = "./modules/web-page-update-endpoint"
 
     api-endpoint                = module.api.api-endpoint
@@ -91,13 +91,13 @@ module "update-js" {
 }
 
 // S3 Bucket for files to be access by the Lambda
-module "s3" {
+module "s3-lambda-1-files" {
     source                      = "./modules/s3-bucket"
 
     source-files-folder-path    = "./files/s3"
     file-types                  = var.file-types
     
-    title                       = local.s3-bucket-name    
+    title                       = local.s3-lambda-1-bucket-name    
 }
 
 // Create the zipped Lambda files
@@ -125,7 +125,7 @@ module "lambda-1" {
     // Environment Variables used by the function
     environment-variables   = {
             # QUEUE_URL             = "https://sqs.${var.aws-primary-region}.amazonaws.com/${var.my-aws-user-id}/${module.sqs.name}"
-            S3_BUCKET_NAME          = local.s3-bucket-name
+            S3_BUCKET_NAME          = local.s3-lambda-1-bucket-name
             ANAGRAM_URL_ROUTE       = local.api-url-routes
     }
     
@@ -145,11 +145,11 @@ module "lambda-1" {
         }
         , {
             actions     = ["s3:ListBucket"]
-            resources   = ["arn:aws:s3:::${local.s3-bucket-name}"]   # S3 Bucket name
+            resources   = ["arn:aws:s3:::${local.s3-lambda-1-bucket-name}"]   # S3 Bucket name
         }
         , {
             actions     = ["s3:GetObject"]
-            resources   = ["arn:aws:s3:::${local.s3-bucket-name}/*"]   # S3 Bucket contents
+            resources   = ["arn:aws:s3:::${local.s3-lambda-1-bucket-name}/*"]   # S3 Bucket contents
         }
     ]
 }
@@ -160,3 +160,19 @@ module "build-react" {
 
     react-path          = "./../src"     // Note this is the path relative from the current path where this Main TF file is located
 }
+
+/*
+// Commented out for now, because it won't work to dynamically build the React files and upload them (the new versions) to S3 all at once
+module "s3-react" {
+    source                      = "./modules/s3-bucket"
+
+    source-files-folder-path    = "./../build"
+    file-types                  = var.file-types
+    
+    title                       = "${local.random}-react-web-page"
+    make-public-boolean         = true
+
+    # depends_on                  = [ module.build-react ]    # Note modular Depends-On should be the output of the module
+    
+}
+*/

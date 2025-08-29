@@ -40,16 +40,24 @@ variable "my-email" {
 
 variable "file-types" {
     type        = map
-    description = "Possible file extentions / file types"
+    description = "Possible file extentions / file types - Eg MIME Type"
 
     default     = {
+                    bmp         = "image/bmp"
+                    csv         = "text/csv"
+                    gif         = "image/gif"
+                    htm         = "text/html"
                     html        = "text/html"
                     css         = "text/css"
+                    ico         = "image/x-icon"
                     js          = "application/javascript"
                     json        = "application/json"
                     jpg         = "image/jpeg"
                     jpeg        = "image/jpeg"
+                    map         = "application/json"
+                    md          = "text/markdown"
                     png         = "image/png"
+                    pdf         = "application/pdf"
                     txt         = "text/plain"
                 }
 }
