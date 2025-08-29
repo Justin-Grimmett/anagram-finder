@@ -31,3 +31,6 @@ yarn-error.log*
 
 # For dynamic data within the Web Page - Eg the non-customised AWS general API endpoint
 /src/dynamic/api-config.tsx
+
+# Backend Zipped code for AWS Lambdas - Note the ** means it will check every sub-folder (recursively)
+/terraform/files/lambda/**/lambda_function.zip

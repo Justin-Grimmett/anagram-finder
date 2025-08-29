@@ -1,6 +1,6 @@
 variable "react-path" {
     type                    = string
-    description             = "The local folder path of where the React files are stpred"
+    description             = "The local folder path of where the React files are stored"
 }
 
 variable "do-npm-install" {

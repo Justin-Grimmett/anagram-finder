@@ -100,6 +100,14 @@ module "s3" {
     title                       = local.s3-bucket-name    
 }
 
+// Create the zipped Lambda files
+module "zip-lambda-1" {
+    source                  = "./zip-and-move-files"
+
+    folder-path             = "./../backend/python"
+    copy-folder-path        = "${path.cwd}/files/lambda/lambda-1/"  # dynamically include the current working folder
+}
+
 // 3. Lambda 1 : API into Anagram controller to be returned - and eventually add data into an SQS queue
 module "lambda-1" {
     source                  = "./modules/lambda"
