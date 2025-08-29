@@ -102,7 +102,7 @@ module "s3-lambda-1-files" {
 
 // Create the zipped Lambda files
 module "zip-lambda-1" {
-    source                  = "./zip-and-move-files"
+    source                  = "./modules/zip-and-move-files"
 
     folder-path             = "./../backend/python"
     copy-folder-path        = "${path.cwd}/files/lambda/lambda-1/"  # dynamically include the current working folder
