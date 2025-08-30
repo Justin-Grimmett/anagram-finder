@@ -23,11 +23,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # For Terraform
-/terraform/.terraform/*
-/terraform/.terraform.lock.hcl
-/terraform/.terraform.tfstate.lock.info
-/terraform/terraform.tfstate.backup
-/terraform/terraform.tfstate
+/**/.terraform/*
+/**/.terraform.lock.hcl
+/**/.terraform.tfstate.lock.info
+/**/terraform.tfstate.backup
+/**/terraform.tfstate
 
 # For dynamic data within the Web Page - Eg the non-customised AWS general API endpoint
 /src/dynamic/api-config.tsx

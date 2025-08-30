@@ -19,3 +19,9 @@ variable "routes" {
     description     = "A string list of the potetially multiple routes to be used by this API Gateway"
     default         = []
 }
+
+variable "api-endpoint" {
+    type            = string
+    description     = "The front-end URL of the API endpoint = to be used for the CORS"
+    default         = "http://localhost:3000"
+}

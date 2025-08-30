@@ -9,7 +9,7 @@ resource "aws_apigatewayv2_api" "api" {
 
     // For localhost testing
     cors_configuration {
-        allow_origins   = [ "http://localhost:3000" ]
+        allow_origins   = [ "http://localhost:3000" , var.api-endpoint ]
         allow_methods   = [ "POST" , "PUT" ]
         allow_headers   = ["content-type"]
         max_age         = 300

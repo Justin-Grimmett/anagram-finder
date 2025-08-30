@@ -40,38 +40,7 @@ variable "my-email" {
 
 variable "file-types" {
     type        = map
-    description = "Possible file extentions / file types - Eg MIME Type"
-
-    default     = {
-                    bmp         = "image/bmp"
-                    csv         = "text/csv"
-                    gif         = "image/gif"
-                    htm         = "text/html"
-                    html        = "text/html"
-                    css         = "text/css"
-                    ico         = "image/x-icon"
-                    js          = "application/javascript"
-                    json        = "application/json"
-                    jpg         = "image/jpeg"
-                    jpeg        = "image/jpeg"
-                    map         = "application/json"
-                    md          = "text/markdown"
-                    png         = "image/png"
-                    pdf         = "application/pdf"
-                    txt         = "text/plain"
-                }
-}
-
-variable "mode-num" {
-    type                = number
-    description         = "A value passed in for the 'Mode' - eg to control what gets run : 1 for Main : 2 for upload React files to S3 (because they are created within TF and there are limitations - eg with the fileset function)"
-    default             = 3     // Default 3 to cover both - eg for Delete
-  
-}
-
-variable "random-string-in" {
-    type                = string
-    description         = "A randomised string to be passed in - eg to be used by React upload mode after being created in Main mode"
-    default             = "random-string"
-  
+    description = "Possible file extentions / file types - Eg MIME Type - Note the default value will be moved into the S3 Module as this is where it is used primarily"
+    default     = {}
+    
 }
