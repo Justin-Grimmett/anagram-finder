@@ -53,7 +53,8 @@ module "random" {
 
 // Main global execute Lambda policy - to be used by all lambda functions
 module "main-policy" {
-    source = "./modules/policy"
+    source          = "./modules/policy"
+    count           = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
     policy-data-statements = [
         {
@@ -71,9 +72,10 @@ module "main-policy" {
 // 2. API : to direct to Lambda 1
 module "api" {
     source          = "./modules/api-gateway"
+    count           = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
-    function-name   = module.lambda-1.function-name
-    invoke-arn      = module.lambda-1.invoke-arn
+    function-name   = module.lambda-1[0].function-name
+    invoke-arn      = module.lambda-1[0].invoke-arn
 
     name            = "${local.random}-lambda-api-trigger-from-modular-tf"       // Lambda title where the API points to for functionality
 
@@ -83,16 +85,20 @@ module "api" {
 
 module "update-web-endpoint" {
     source                      = "./modules/web-page-update-endpoint"
+    count                       = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
-    api-endpoint                = module.api.api-endpoint
+    api-endpoint                = module.api[0].api-endpoint
     js-file-path                = "./../src/dynamic/api-config.tsx"
 
     template-file-path          = "./../src/dynamic/template.tsx.tpl"      // Template file which is used to populate the contents of the JS file
+
+    depends_on                  = [ module.api ]
 }
 
 // S3 Bucket for files to be access by the Lambda
 module "s3-lambda-1-files" {
     source                      = "./modules/s3-bucket"
+    count                       = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
     source-files-folder-path    = "./files/s3"
     file-types                  = var.file-types
@@ -103,6 +109,7 @@ module "s3-lambda-1-files" {
 // Create the zipped Lambda files
 module "zip-lambda-1" {
     source                  = "./modules/zip-and-move-files"
+    count                   = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
     folder-path             = "./../backend/python"
     copy-folder-path        = "${path.cwd}/files/lambda/lambda-1/"  # dynamically include the current working folder
@@ -111,8 +118,9 @@ module "zip-lambda-1" {
 // 3. Lambda 1 : API into Anagram controller to be returned - and eventually add data into an SQS queue
 module "lambda-1" {
     source                  = "./modules/lambda"
+    count                   = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
-    lambda-exec-role        = module.main-policy.policy-document-json
+    lambda-exec-role        = module.main-policy[0].policy-document-json    // The [0] is required because using condition count turns the resource into a tuple list
     title                   = local.lambda-1-title                                                                  // Name of the lambda function
 
     description             = "${local.random} Retrieve data from an API and send it to an SQS : Created from modular Terraform"    // text description
@@ -121,6 +129,8 @@ module "lambda-1" {
     runtime-language        = "python3.13"                                                                          // coding language and version
     handler-file-method     = "api-handler.lambda_handler"                                                          // file dot function name
     memory-size             = 512                                                                                   // memory size in MB - I was running out at the default 128
+
+    depends_on              = [ module.main-policy ]
 
     // Environment Variables used by the function
     environment-variables   = {
@@ -157,22 +167,22 @@ module "lambda-1" {
 // Build the React production files - to be deployed to an S3 Bucket
 module "build-react" {
     source              = "./modules/web-page-build-react"
+    count               = var.mode-num != 2  ? 1 : 0               // Main mode - run all
 
     react-path          = "./../src"     // Note this is the path relative from the current path where this Main TF file is located
 }
 
-/*
 // Commented out for now, because it won't work to dynamically build the React files and upload them (the new versions) to S3 all at once
 module "s3-react" {
     source                      = "./modules/s3-bucket"
+    count                       = var.mode-num != 1  ? 1 : 0               // Only create S3 and upload dynamically created React files
 
     source-files-folder-path    = "./../build"
     file-types                  = var.file-types
     
-    title                       = "${local.random}-react-web-page"
+    title                       = "${var.random-string-in}-react-web-page"
     make-public-boolean         = true
 
     # depends_on                  = [ module.build-react ]    # Note modular Depends-On should be the output of the module
     
 }
-*/

@@ -61,3 +61,17 @@ variable "file-types" {
                     txt         = "text/plain"
                 }
 }
+
+variable "mode-num" {
+    type                = number
+    description         = "A value passed in for the 'Mode' - eg to control what gets run : 1 for Main : 2 for upload React files to S3 (because they are created within TF and there are limitations - eg with the fileset function)"
+    default             = 3     // Default 3 to cover both - eg for Delete
+  
+}
+
+variable "random-string-in" {
+    type                = string
+    description         = "A randomised string to be passed in - eg to be used by React upload mode after being created in Main mode"
+    default             = "random-string"
+  
+}
