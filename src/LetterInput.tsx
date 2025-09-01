@@ -8,6 +8,7 @@
 
 import React, { useRef , useState, useEffect } from "react";
 import { API_ENDPOINT } from "./dynamic/api-config";
+import LoadingContainer from './loading/LoadingContainer';		// The loading spinning-icon/label
 
 export default function LetterInput() {
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
@@ -26,6 +27,10 @@ export default function LetterInput() {
 	const [returnedJsonWordData , setReturnedJsonWordData] = useState<{}>({});
 	// Has the Submit button been clicked by the user?
 	const [submitIsClicked, setSubmitIsClicked] = useState<boolean>(false);
+
+	// Loading
+	const [loadingRunning, setLoadingRunning] = useState<boolean>(false);
+	const [loadingLabelStr, setLoadingLabelStr] = useState<string>('Loading ...');
 
 	// "Icons" unicode characters
 	const backSpaceIcon : string = "⌫";
@@ -219,6 +224,11 @@ export default function LetterInput() {
 
 	// Submit button has been clicked
 	const doSubmit = () => {
+
+		// Show loading icon once Submit button is clicked
+		setLoadingLabelStr('Processing ...');
+		setLoadingRunning(true);
+
 		// Manually add to the log of buttons pressed - due to state updates being asynchronous and batched this was not being included
 		let finalButtonArray : string[] = [...buttonsPressed , formatButtonPress("Submit")];
 		setButtonsPressed(finalButtonArray);
@@ -275,6 +285,10 @@ export default function LetterInput() {
 			setSubmitIsClicked(false);
 
 			setReturnTimeStamp(new Date());
+			
+			// Hide loading icon as data is now returned after Submit
+			setLoadingRunning(false);
+			setLoadingLabelStr('');
 		}
 
 		if (submitIsClicked) {
@@ -431,6 +445,11 @@ export default function LetterInput() {
 				{submitLabelText.split("\n").map((lineText,keyData) => {
 					return <div key={keyData}>{lineText}</div>;
 				})}
+			</div>
+
+			{/* The loading icon/label */}
+			<div>
+				<LoadingContainer isLoading={loadingRunning} loadingLabel={loadingLabelStr} />
 			</div>
 		</div>
 	);

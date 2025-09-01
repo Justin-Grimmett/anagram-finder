@@ -1,0 +1,15 @@
+/* Appearance of the spinner Icon */
+.spinner {
+	width: 50px;
+	height: 50px;
+	border: 6px solid var(--circle-colour, rgba(255, 255, 255, 0.7));   /* The colour of the "circle" : default of white + mostly opaque */
+	border-top-color: var(--spin-colour, rgba(0,0, 0, 1));				/* The colour of the spinning portion : default of black + fully opaque */
+	border-radius: 50%;
+	animation: spin 1s linear infinite;		/* The animation type. Eg spin, takes 1 second for each resolution, will run forever until stopped */
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);	/* The spinning animation - eg how far around the circle the spinning part goes */
+	}
+}
