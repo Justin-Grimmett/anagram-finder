@@ -28,6 +28,7 @@ yarn-error.log*
 /**/.terraform.tfstate.lock.info
 /**/terraform.tfstate.backup
 /**/terraform.tfstate
+/**/tf-outs-temp-only.txt
 
 # For dynamic data within the Web Page - Eg the non-customised AWS general API endpoint
 /src/dynamic/api-config.tsx

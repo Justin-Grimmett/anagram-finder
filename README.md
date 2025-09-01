@@ -51,9 +51,10 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Run Build Instructions
 
-> As at 30/08/2025
-- cd to main `terraform` folder
-- `terraform apply -var "my-aws-access-key=your-20-digit-key" -var "my-aws-secret-key=your-40-digit-key" -var "my-aws-user-id=your-12-digit-id" -var "my-email=your=email"`
-- the output will be something like `random-string = "16-digit-string"`
-- Then cd to the sub folder `upload-react`
-- `terraform apply -var "my-aws-access-key=your-20-digit-key" -var "my-aws-secret-key=your-40-digit-key" -var "my-aws-user-id=your-12-digit-12" -var "random-string-in=the-manual-output-from-above`
+> As at 01/09/2025
+- `cd` to main project parent folder
+#### Terraform apply
+- `bash ./scripts/tf.sh apply your-20-digit-key your-40-digit-key your-12-digit-id your-email-address`
+- *Note this also runs the React production build (and thus the reason why things need to be done this way)*
+#### Terraform destroy
+- `bash ./scripts/tf.sh destroy your-20-digit-key your-40-digit-key your-12-digit-id your-email-address`
