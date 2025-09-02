@@ -9,6 +9,7 @@
 import React, { useRef , useState, useEffect } from "react";
 import { API_ENDPOINT } from "./dynamic/api-config";
 import LoadingContainer from './loading/LoadingContainer';		// The loading spinning-icon/label
+import MsgModal from './msgModal/MsgModal'					// Popup dialog
 
 export default function LetterInput() {
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
@@ -77,6 +78,12 @@ export default function LetterInput() {
 
 		setUserAgent(window.navigator.userAgent);
 	}, []);
+
+	// Modal popup
+	const [showModal, setShowModal] = useState<boolean>(false);
+	const [modalHeading, setModalHeading] = useState<string>("Heading");
+	const [modalBody, setModalBody] = useState<string>("Body text.");
+	const [modalButtonLbl, setModalButtonLbl] = useState<string>("Close");
 
 	// When English letter buttons are clicked with mouse (or finger on touchscreen?)
 	const handleLetterClick = (letterClicked : string) => {
@@ -305,10 +312,24 @@ export default function LetterInput() {
 					// "prev" is what it already includes
 					let timeDiffInSecs : number = (returnTimeStamp.getTime() - submitTimeStamp.getTime()) / 1000;
 					setSubmitLabelText(prev => prev + "\n Returned data : \n" + JSON.stringify(returnedJsonWordData["wordData"]).replaceAll('","','" , "') + `\nData returned in ${timeDiffInSecs} seconds`);
+
+					let popupBody:string = "";
+					
+					// THIS CONTENT IS JUST TESTING FOR NOW
+					if (Object(returnedJsonWordData["wordData"])["wordCount"] === 0) {
+						popupBody = "No real Anagram words are returned."
+					} else {
+						popupBody = `${Object(returnedJsonWordData["wordData"])["wordCount"]} Anagram words returned.`;
+						popupBody = popupBody + "\n\n" + JSON.stringify(Object(returnedJsonWordData["wordData"])["lenDict"]).replaceAll('","', '" , "').replaceAll('],"', '] , "');
+					}
+
+					popupBody = popupBody + "\n\n" + JSON.stringify(returnedJsonWordData);	// testing
+
+					setPopupTextAndShow(lettersEntered, popupBody);
 				}
 			}
 		}
-	}, [returnedJsonWordData, returnTimeStamp, submitTimeStamp]);
+	}, [returnedJsonWordData, returnTimeStamp, submitTimeStamp, lettersEntered]);
 
 	// Format a DateTime in the common string format
 	const formatTimeString = (date : Date) : string => {
@@ -328,6 +349,14 @@ export default function LetterInput() {
 	// Refresh the page
 	const doRefresh = () => {
 		window.location.reload();
+	}
+
+	// Populate modal popup text
+	const setPopupTextAndShow = (title:string, body:string, button:string="Close", show:boolean=true) => {
+		setModalHeading(title);
+		setModalBody(body);
+		setModalButtonLbl(button);
+		setShowModal(show);
 	}
 
 	// The Front-End
@@ -450,6 +479,17 @@ export default function LetterInput() {
 			{/* The loading icon/label */}
 			<div>
 				<LoadingContainer isLoading={loadingRunning} loadingLabel={loadingLabelStr} />
+			</div>
+
+			{/* Modal popup to display data/text */}
+			<div>
+				<MsgModal
+					isOpen={showModal}
+					onClose={() => setShowModal(false)}
+					title={modalHeading}
+					body={modalBody}
+					btnLabel={modalButtonLbl}
+				/>
 			</div>
 		</div>
 	);
