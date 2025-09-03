@@ -13,3 +13,17 @@
 		transform: rotate(360deg);	/* The spinning animation - eg how far around the circle the spinning part goes */
 	}
 }
+
+table {
+  width: 90%;						/* Stretch table horiontally - not quite full width */
+  border-collapse: collapse;		/* Remove double borders */
+  margin-left: auto;				/* Center horizontally by margins */
+  margin-right: auto;
+  border: 1px solid black;			/* Table border */
+}
+th, td {
+  text-align: center;				/* Center horizontally */
+  vertical-align: middle;			/* Center vertically */
+  border: 1px solid black;			/* Cell borders */
+  height: 50px;						/* Example height for vertical centering */
+}

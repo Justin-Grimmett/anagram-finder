@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import Util from './../Util'
+import parse from 'html-react-parser';		// Allows HTML tags to be used within React strings
 
 interface MsgModalProps {
 	isOpen: boolean;			// show or hide?
@@ -57,7 +57,7 @@ const MsgModal: FC<MsgModalProps> = ({
 		<div style={backdropStyles}></div>
 		<div style={modalStyles} role="dialog" aria-modal="true">
 			<h2>{title}</h2>
-			<div style={bodyStyles}>{Util.addLineBreak(body)}</div>
+			<div style={bodyStyles}>{parse(body)}</div>
 			<button
 				style={{
 					marginTop: 'auto',

@@ -1,23 +1,3 @@
-'''
-IAM Role Access
-
- {
-            "Action": [
-                "s3:ListBucket"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:s3:::words-txt-test"
-        },
-        {
-            "Action": [
-                "s3:GetObject"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:s3:::words-txt-test/*"
-        }
-
-'''
-
 import time
 import itertools
 import os

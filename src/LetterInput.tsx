@@ -254,7 +254,7 @@ export default function LetterInput() {
 		// The "state" auto function to set the value of submitLabelText variable
 		// Currently for Testing only
 		// Eventually the full output from the API will be displayed here in some form
-		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${finalButtonArray} } \n User Agent : ${userAgent}`);
+		setSubmitLabelText(`"${lettersEntered}" will be sent to the API \n ${timeDiffInSecs} seconds between page Load and Submit \n Buttons pressed: { ${String(finalButtonArray).replaceAll(",", " , ")} } \n User Agent : ${userAgent}`);
 		
 		// Use this JSON data to pass over to the API to be used in the backend
 		setOutputJson( {
@@ -311,20 +311,70 @@ export default function LetterInput() {
 				if ("wordData" in returnedJsonWordData) {
 					// "prev" is what it already includes
 					let timeDiffInSecs : number = (returnTimeStamp.getTime() - submitTimeStamp.getTime()) / 1000;
-					setSubmitLabelText(prev => prev + "\n Returned data : \n" + JSON.stringify(returnedJsonWordData["wordData"]).replaceAll('","','" , "') + `\nData returned in ${timeDiffInSecs} seconds`);
+					setSubmitLabelText(prev => prev + "\n Summarised returned data : \n" + Object(returnedJsonWordData["wordData"])["note"] + `\nData returned in ${timeDiffInSecs} seconds`);
 
 					let popupBody:string = "";
-					
-					// THIS CONTENT IS JUST TESTING FOR NOW
+					let subMainStr:string = `</b><br/> In ${timeDiffInSecs} seconds.<br/><br/>For this [${lettersEntered.length}] letter length input word. `;
+					// No word returned at all
 					if (Object(returnedJsonWordData["wordData"])["wordCount"] === 0) {
-						popupBody = "No real Anagram words are returned."
+						popupBody = `<b>No real Anagram words are returned. ${subMainStr}`;
 					} else {
-						popupBody = `${Object(returnedJsonWordData["wordData"])["wordCount"]} Anagram words returned.`;
-						popupBody = popupBody + "\n\n" + JSON.stringify(Object(returnedJsonWordData["wordData"])["lenDict"]).replaceAll('","', '" , "').replaceAll('],"', '] , "');
+					// Word exist
+						popupBody = `<b>${Object(returnedJsonWordData["wordData"])["wordCount"]} Anagram words returned in total. ${subMainStr}`;
+						// Set the number of columns of the tables for each length value
+						let colLenArr: {[len:number] : number} = {4:5, 5:4, 6:4, 7:3, 8:3, 9:2};
+						// Dynamic number of Columns per table Row
+						let allowedCols:number = 2;
+						// Loop through each word length in the returned data
+						for (let len in Object(Object(returnedJsonWordData["wordData"])["lenDict"])) {
+							allowedCols = 2;	// Reset to the default
+							// If the col len Key exists
+							if (colLenArr[Number(len)] !== undefined) {
+								// Set the allowed number of columns for this word length
+								allowedCols = colLenArr[Number(len)];
+							}
+							// How many words are returned for this length of letters
+							let arrayLen:number = Object(Object(returnedJsonWordData["wordData"])["lenDict"])[String(len)].length;
+							// If for some reason the calculated value is longer than the max
+							if (allowedCols > arrayLen) allowedCols = arrayLen;
+							// Get number of rows by dividing the number of words returned by number of allowed columns
+							let maxRows:number = Math.ceil(arrayLen/allowedCols);
+							// Reset to 1 if not a number
+							if (Number.isNaN(maxRows)) maxRows = 1;
+							// Heading for each seprate table - one for each length of letters
+							popupBody += `<br><br><table><tr><td${allowedCols>1?` colSpan="${allowedCols}"`:""}><b>[${len}] letter length words</b>${arrayLen>0?` : ${arrayLen} found`:""}`;
+							popupBody += "</td$></tr>";
+							if (arrayLen === 0) {
+								// If no words are returned for this length of letters
+								popupBody += "<tr><td>No words of this length</td></tr>"
+							} else {
+								// The word ID - eg for each cell
+								let cellIdx:number = 0;
+								// For each row
+								for (let cols:number = 1; cols <= maxRows; cols++) {
+									popupBody += "<tr>"
+									// For each cell in this row
+									for (let cell:number = 1; cell <= allowedCols; cell++) {
+										let contents:string = "";
+										// To cater for blank cells in the final row
+										if (cellIdx < arrayLen) {
+											// Display the Word in the Cell contents - and provide an external hyperlink to display the word definition
+											let theWord:string = Object(Object(returnedJsonWordData["wordData"])["lenDict"])[String(len)][cellIdx];
+											// Have to determine which external URL to actually use - or possibly provide an option for multiple?
+											// contents = `<a href="https://www.merriam-webster.com/dictionary/${theWord.toLowerCase()}" target="_blank">${theWord}</a>`;
+											contents = `<a href="https://findwords.info/term/${theWord.toLowerCase()}" target="_blank">${theWord}</a>`;
+										}
+										popupBody += `<td>${contents}</td>`
+										cellIdx++;
+									}
+									popupBody += "</tr>"
+								}
+							}
+							popupBody += "</table>";
+						}
+						popupBody += "<br/><br/>";
 					}
-
-					popupBody = popupBody + "\n\n" + JSON.stringify(returnedJsonWordData);	// testing
-
+					
 					setPopupTextAndShow(lettersEntered, popupBody);
 				}
 			}
