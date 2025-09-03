@@ -36,6 +36,10 @@ if [[ $1 == "apply" ]]; then
 elif [[ $1 == "destroy" ]]; then
     # Destroy
     bash ./scripts/tf-destroy.sh $2 $3 $4 $5
+elif [[ $1 == "both" ]]; then
+    # Run both Destroy and Apply in one step
+    bash ./scripts/tf-destroy.sh $2 $3 $4 $5
+    bash ./scripts/tf-apply.sh $2 $3 $4 $5
 else
     echo "Error: Incorrect Terraform Type passed in!" >&2; exit 1
 fi
