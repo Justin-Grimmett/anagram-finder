@@ -9,11 +9,14 @@
 import React, { useRef , useState, useEffect } from "react";
 import { API_ENDPOINT } from "./dynamic/api-config";
 import LoadingContainer from './loading/LoadingContainer';		// The loading spinning-icon/label
-import MsgModal from './msgModal/MsgModal'					// Popup dialog
+import MsgModal from './msgModal/MsgModal'						// Popup dialog
+import Util from './Util'										// Common utility functions
 
 export default function LetterInput() {
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
 	const inputRef = useRef(null);											// Used for functionality of the input text field
+	const [prevText, setPrevText] = useState<string>("");					// The text in the Input field before being changed - used for comparison
+	const [manuallyTyped, setManuallyTyped] = useState<boolean>(false);		// Was the text in the input field manually typed (rather than one of the letter buttons)
 
 	// An example of how React "States" work - "useState hook"
 	const [submitLabelText, setSubmitLabelText] = useState<string>("");
@@ -64,7 +67,8 @@ export default function LetterInput() {
 	};
 
 	// For User Agent data - eg browser version and OS - note will Not work in Mobile Native Apps (maybe use something like react-native-device-info for that specifically)
-	const [userAgent, setUserAgent] = useState("");
+	const [userAgent, setUserAgent] = useState<string>("");
+	const [isMobile, setIsMobile] = useState<boolean>(false);
 
 	// Functionality inside this will only be run once - eg on first load
 	useEffect(() => {
@@ -77,6 +81,7 @@ export default function LetterInput() {
 		testRunOnlyOnce();	// Run the above example function, which would only be run one time
 
 		setUserAgent(window.navigator.userAgent);
+		setIsMobile(Util.isMobileBrowser(window.navigator.userAgent));
 	}, []);
 
 	// Modal popup
@@ -115,6 +120,12 @@ export default function LetterInput() {
 		if (textField.target.value.length <= maxAllowedLength) {
 			// Run the function to add the typed letter
 			setLettersEntered(textField.target.value);
+			// On Mobile only, has a letter been deleted manually? If so log it in the button presses
+			let newText:string = textField.target.value;
+			let btn:string = showMobileTextChange(newText, lettersEntered, isMobile);
+			if (btn !== "" && newText.length < lettersEntered.length) {
+				addButtonPressed(`(Deleted ${btn})`);
+			}
 		}
 		handleMsg();
 	};
@@ -150,7 +161,14 @@ export default function LetterInput() {
 
 	// Handler for manually typing text into the entry field
 	const handleKeyDown = (keyPressed : any) => {
-		addButtonPressed(keyPressed.key.toString());
+		// Set what the text is previously before this change
+		setPrevText(lettersEntered);
+		// The text has been manually typed - as opposed to the letter buttons on the screen
+		setManuallyTyped(true);
+		// Only log here specifically if not on Mobile
+		if (!isMobile) {
+			addButtonPressed(keyPressed.key.toString());
+		}
 
 		// If maximum allowed letter is reached, do not continue
 		if (disableLettersIfMaxLen) return;
@@ -177,6 +195,19 @@ export default function LetterInput() {
 			keyPressed.preventDefault();
 		}
 	};
+
+	
+	// When text is manually typed into the text field, allow the change to be checked, especially on mobile
+	useEffect(() => {
+		// Only check if has been manually typed directly into the text field
+		if (manuallyTyped) {
+			// If is on mobile, log the text typed by the user
+			let btn:string = showMobileTextChange(lettersEntered, prevText, isMobile);
+			if (btn !== "") addButtonPressed(btn);
+		}
+		// Then reset manually typed to False
+		setManuallyTyped(false);		
+	}, [lettersEntered, prevText, manuallyTyped, isMobile]);
 
 	// Functionality to actually update the text displayed in the entry field
 	const updateText = (letter : string, buttonPress : boolean) => {
@@ -543,4 +574,49 @@ export default function LetterInput() {
 			</div>
 		</div>
 	);
+}
+
+// Capture the different between two strings
+// Note the different single character will be returned - or empty string otherwise
+function showMobileTextChange (updated:string, prev:string, isMobile:boolean):string {
+	// Only run this on Mobile for now, as initially created logging the text entered, which does not work there
+	if (isMobile) {
+		// Validate the inputs
+		if (updated ===undefined || updated===null) updated = "";
+		if (prev ===undefined || prev===null) prev = "";
+		updated = updated.toString().toLowerCase().trim();
+		prev = prev.toString().toLowerCase().trim();
+		// No difference
+		if (updated === prev) {
+			return "";
+		}
+		// Get the shortest and longest strings from the 2 inputs
+		let long:string = "";
+		let short:string = "";
+		if (updated.length > prev.length) {
+			long = updated;
+			short = prev;
+		} else if (prev.length > updated.length) {
+			long = prev;
+			short = updated;
+		} else {
+			return "";
+		}
+		// Loop through the characters of the longer string
+		for (let idx=0; idx <= long.length; idx++) {
+			// If the index value is within the shorter string
+			if (idx < short.length) {
+				// Compare the character number
+				if (long[idx] !== short[idx]) {
+					// Return if different
+					return long[idx];
+				}
+			}
+		}
+		// Just in case, return the last character if different
+		if (short.length === (long.length-1)) {
+			return long[long.length-1];
+		}
+	}		
+	return "";
 }
