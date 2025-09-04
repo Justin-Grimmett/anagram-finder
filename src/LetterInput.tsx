@@ -15,8 +15,6 @@ import Util from './Util'										// Common utility functions
 export default function LetterInput() {
 	const [lettersEntered , setLettersEntered] = useState<string>("");		// The main input data String - eg the letters entered by the user
 	const inputRef = useRef(null);											// Used for functionality of the input text field
-	const [prevText, setPrevText] = useState<string>("");					// The text in the Input field before being changed - used for comparison
-	const [manuallyTyped, setManuallyTyped] = useState<boolean>(false);		// Was the text in the input field manually typed (rather than one of the letter buttons)
 
 	// An example of how React "States" work - "useState hook"
 	const [submitLabelText, setSubmitLabelText] = useState<string>("");
@@ -117,15 +115,18 @@ export default function LetterInput() {
 	// When text is typed manually into the text field directly
 	const handleChange = (textField : any) => {
 		// Existing text must be shorter than the maximum allowed length
-		if (textField.target.value.length <= maxAllowedLength) {
-			// Run the function to add the typed letter
-			setLettersEntered(textField.target.value);
+		let newText:string = String(textField.target.value).trim();
+		if (newText.length <= maxAllowedLength && /^[a-zA-Z]*$/.test(newText)) {
 			// On Mobile only, has a letter been deleted manually? If so log it in the button presses
-			let newText:string = textField.target.value;
 			let btn:string = showMobileTextChange(newText, lettersEntered, isMobile);
-			if (btn !== "" && newText.length < lettersEntered.length) {
-				addButtonPressed(`(Deleted ${btn})`);
+			if (btn !== "") {
+				if (newText.length < lettersEntered.length) {
+					btn = `(Deleted ${btn})`
+				}
+				addButtonPressed(btn);
 			}
+			// Run the function to add the typed letter
+			setLettersEntered(newText);
 		}
 		handleMsg();
 	};
@@ -161,10 +162,6 @@ export default function LetterInput() {
 
 	// Handler for manually typing text into the entry field
 	const handleKeyDown = (keyPressed : any) => {
-		// Set what the text is previously before this change
-		setPrevText(lettersEntered);
-		// The text has been manually typed - as opposed to the letter buttons on the screen
-		setManuallyTyped(true);
 		// Only log here specifically if not on Mobile
 		if (!isMobile) {
 			addButtonPressed(keyPressed.key.toString());
@@ -195,19 +192,6 @@ export default function LetterInput() {
 			keyPressed.preventDefault();
 		}
 	};
-
-	
-	// When text is manually typed into the text field, allow the change to be checked, especially on mobile
-	useEffect(() => {
-		// Only check if has been manually typed directly into the text field
-		if (manuallyTyped) {
-			// If is on mobile, log the text typed by the user
-			let btn:string = showMobileTextChange(lettersEntered, prevText, isMobile);
-			if (btn !== "") addButtonPressed(btn);
-		}
-		// Then reset manually typed to False
-		setManuallyTyped(false);		
-	}, [lettersEntered, prevText, manuallyTyped, isMobile]);
 
 	// Functionality to actually update the text displayed in the entry field
 	const updateText = (letter : string, buttonPress : boolean) => {
@@ -617,6 +601,6 @@ function showMobileTextChange (updated:string, prev:string, isMobile:boolean):st
 		if (short.length === (long.length-1)) {
 			return long[long.length-1];
 		}
-	}		
+	}
 	return "";
 }
