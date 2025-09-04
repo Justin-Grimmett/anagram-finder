@@ -68,6 +68,9 @@ export default function LetterInput() {
 	const [userAgent, setUserAgent] = useState<string>("");
 	const [isMobile, setIsMobile] = useState<boolean>(false);
 
+	// To cater for when the user Submits multiple times without refreshing
+	const [sessionId, setSessionId] = useState<string>("");
+
 	// Functionality inside this will only be run once - eg on first load
 	useEffect(() => {
 		function testRunOnlyOnce () {
@@ -80,6 +83,8 @@ export default function LetterInput() {
 
 		setUserAgent(window.navigator.userAgent);
 		setIsMobile(Util.isMobileBrowser(window.navigator.userAgent));
+
+		setSessionId(crypto.randomUUID());
 	}, []);
 
 	// Modal popup
@@ -276,7 +281,8 @@ export default function LetterInput() {
 			"letters" : lettersEntered
 			, "user-agent" : userAgent
 			, "buttons-clicked" : finalButtonArray
-			, "uuid" : uuid
+			, "submit-uuid" : uuid
+			, "session-uuid" : sessionId
 			, "utc-timestamp-page-load" : formatTimeString(pageRefreshTimeStamp)
 			, "utc-timestamp-submit" : formatTimeString(submitTimeStamp)
 			, "tz-offset-submit" : submitTimeStamp.getTimezoneOffset()
@@ -311,6 +317,8 @@ export default function LetterInput() {
 			// Hide loading icon as data is now returned after Submit
 			setLoadingRunning(false);
 			setLoadingLabelStr('');
+			// If they submit subsequent times without refreshing - Note can eventually cross-reference against the Session ID data
+			setButtonsPressed(["<Page still opened>"]);
 		}
 
 		if (submitIsClicked) {
@@ -391,6 +399,10 @@ export default function LetterInput() {
 					}
 					
 					setPopupTextAndShow(lettersEntered, popupBody);
+
+					// To prevent the popup from constantly keep reappearing after initial Submit
+					setReturnedJsonWordData({});
+					setPageRefreshTimeStamp(new Date());
 				}
 			}
 		}
