@@ -17,10 +17,10 @@ const modalStyles: React.CSSProperties = {
 	maxWidth: '400px',
 	height: 'auto',
 	minHeight: '200px',			// Minimum height desired
-	maxHeight: '50vh',			// Maximum height (about half mobile viewport)
-	background: '#fff',
-	boxShadow: '0 2px 8px rgba(0,0,0,0.26)',
-	borderRadius: '10px',
+	maxHeight: '80vh',			// Maximum height (majority of mobile viewport)
+	background: 'rgba(241,241,241,1)',	// Slightly off-white
+	boxShadow: '0 2px 8px 10px rgba(0,0,0,0.26)',		// [offset-x] [offset-y] [blur-radius] [spread-radius] [color] [inset];
+	borderRadius: '50px',		// rounded corners
 	transform: 'translate(-50%, -50%)',
 	zIndex: 1000,
 	display: 'flex',
@@ -28,6 +28,7 @@ const modalStyles: React.CSSProperties = {
 	padding: '16px',
 };
 
+// This is the disabled main screen behind the modal
 const backdropStyles: React.CSSProperties = {
 	position: 'fixed',
 	top: 0,
