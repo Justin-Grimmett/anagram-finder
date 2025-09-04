@@ -122,6 +122,7 @@ export default function LetterInput() {
 		// Existing text must be shorter than the maximum allowed length
 		let newText:string = String(textField.target.value).trim();
 		if (newText.length <= maxAllowedLength && /^[a-zA-Z]*$/.test(newText)) {
+			newText = newText.toUpperCase();
 			// On Mobile only, has a letter been deleted manually? If so log it in the button presses
 			let btn:string = showMobileTextChange(newText, lettersEntered, isMobile);
 			if (btn !== "") {
