@@ -146,6 +146,13 @@ if [[ "$isGit" -eq 1 ]]; then
 
 			done)
 
+		# Display count of how many files have changed
+		lineCount=$(echo "$fileData" | wc -l)
+		if [ "$lineCount" -gt 0 ]; then
+			echo "$lineCount changed file(s)"
+			echo ""
+		fi
+
 		# Display version - based on if parameters are passed in or not
 		if [ "$lineVersion" -eq 1 ]; then
 
