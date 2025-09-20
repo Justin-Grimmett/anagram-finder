@@ -35,6 +35,7 @@ variable "file-types" {
                             md          = "text/markdown"
                             png         = "image/png"
                             pdf         = "application/pdf"
+                            svg         = "image/svg+xml"
                             txt         = "text/plain"
                         }
 }
